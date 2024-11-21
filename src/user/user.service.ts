@@ -19,6 +19,12 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
+    const userExist = await this.UserRepository.findOneBy({
+      correo_electronico: createUserDto.correo_electronico,
+    });
+    if (userExist) {
+      throw new BadRequestException('User with email already registered.');
+    }
     const saltOrRounds = 12;
     const hashedPassword = await bcrypt.hash(
       createUserDto.contrasena,
@@ -54,7 +60,6 @@ export class UserService {
       throw new NotFoundException('User does not exist');
     }
     await this.UserRepository.save(user);
-    return user;
   }
 
   async deleteUser(user_uuid: string) {

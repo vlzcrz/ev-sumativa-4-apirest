@@ -41,6 +41,7 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch(':user_uuid')
+  @HttpCode(204)
   updateUser(
     @Param('user_uuid') user_uuid: string,
     @Body() updateUserDto: UpdateUserDto,

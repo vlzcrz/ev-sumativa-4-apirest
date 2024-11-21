@@ -21,6 +21,7 @@ export class UserSeedService {
       const filePath = join(__dirname, '../user-seed.json');
       const fileContent = await readFile(filePath, 'utf-8');
       const users = JSON.parse(fileContent);
+      const saltOrRounds = 12;
 
       for (const userData of users) {
         const existingUser = await this.UserRepository.existsBy({
@@ -30,7 +31,7 @@ export class UserSeedService {
         if (existingUser) {
           continue;
         }
-        const saltOrRounds = 12;
+
         const hashedPassword = await bcrypt.hash(
           userData.contrasena,
           saltOrRounds,
@@ -42,6 +43,21 @@ export class UserSeedService {
         });
         await this.UserRepository.save(user);
       }
+
+      const existAdmin = this.UserRepository.existsBy({
+        correo_electronico: 'administrador@gmail.com',
+      });
+      if (!existAdmin) {
+        const userAdmin = this.UserRepository.create({
+          nombre: 'administrador',
+          apellido: '',
+          contrasena: await bcrypt.hash('administrador', saltOrRounds),
+          correo_electronico: 'administrador@gmail.com',
+          esta_eliminado: false,
+        });
+        await this.UserRepository.save(userAdmin);
+      }
+
       this.logger.log('The user seeder task is done without problems');
     } catch (error) {
       this.logger.error(error);
