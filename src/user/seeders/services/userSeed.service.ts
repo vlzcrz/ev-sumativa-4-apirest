@@ -44,13 +44,14 @@ export class UserSeedService {
         await this.UserRepository.save(user);
       }
 
-      const existAdmin = this.UserRepository.existsBy({
+      const existAdmin = await this.UserRepository.existsBy({
         correo_electronico: 'administrador@gmail.com',
       });
       if (!existAdmin) {
         const userAdmin = this.UserRepository.create({
+          user_uuid: uuidv4(),
           nombre: 'administrador',
-          apellido: '',
+          apellido: 'none',
           contrasena: await bcrypt.hash('administrador', saltOrRounds),
           correo_electronico: 'administrador@gmail.com',
           esta_eliminado: false,
